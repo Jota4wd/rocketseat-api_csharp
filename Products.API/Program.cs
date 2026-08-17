@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Products.API.Filters;
+using Products.API.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,10 @@ builder.Services.AddSwaggerGen();
 
 // reconhecendo o filtro de excecao
 builder.Services.AddMvc(option => option.Filters.Add(typeof(ExceptionFilter)));
+
+// Configuração do DbContext com o SQLite lendo do appsettings.json
+builder.Services.AddDbContext<ProductDbContext>(options =>
+	options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
