@@ -353,10 +353,12 @@
   </main>
 
   <script>
-    const API_BASE = 'http://localhost:5044/api';
-    // Se preferir HTTPS, troque para 'https://localhost:7236/api' — mas nesse caso
-    // o navegador vai bloquear a chamada até você confiar no certificado local com:
-    // dotnet dev-certs https --trust
+    const API_BASE = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:5044/api'
+      : '/api';
+    // Local (arquivo aberto direto ou localhost) -> aponta pro dotnet run na 5044.
+    // Produção (servido pelo Nginx no mesmo domínio) -> usa caminho relativo,
+    // que evita CORS e mixed content (https chamando https automaticamente).
 
     let clientsCache = [];
     let selectedClientId = null;
