@@ -63,7 +63,7 @@ public class ClientsController : ControllerBase
 		var useCase = new GetClientByIdUseCase();
 		var response = useCase.Execute(id);
 
-		return Ok();
+		return Ok(response);
 	}
 
 	[HttpDelete]

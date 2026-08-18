@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products API — Painel de teste</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0b0b0f;
+    --bg-surface: #16161d;
+    --bg-surface-hover: #1c1c25;
+    --border: #26262e;
+    --purple: #8257e5;
+    --purple-light: #a276ff;
+    --text-primary: #f1f1f3;
+    --text-muted: #8a8a94;
+    --green: #2ecc71;
+    --red: #ff5c5c;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .brand { font-family: 'Sora', sans-serif; }
+
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0 8px;
+  }
+
+  .brand .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 12px var(--purple-light);
+  }
+
+  nav { display: flex; flex-direction: column; gap: 4px; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+  }
+
+  .nav-item:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(130,87,229,0.18), transparent);
+    color: var(--text-primary);
+    box-shadow: inset 3px 0 0 var(--purple);
+  }
+
+  .api-status {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--bg-surface-hover);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .status-pill {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  .status-pill.offline { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  main {
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 1000px;
+  }
+
+  header.page-head { margin-bottom: 32px; }
+  header.page-head h1 { font-size: 26px; font-weight: 700; }
+  header.page-head p { color: var(--text-muted); font-size: 14px; margin-top: 6px; }
+
+  .panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .panel h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  form.inline-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; }
+  form.inline-form.products { grid-template-columns: 1fr 1fr 1fr auto; }
+
+  input, select {
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(130,87,229,0.25);
+  }
+
+  button.primary {
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+  }
+
+  button.primary:hover { background: var(--purple-light); }
+  button.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  button:focus-visible, input:focus-visible, select:focus-visible, .nav-item:focus-visible {
+    outline: 2px solid var(--purple-light);
+    outline-offset: 2px;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+
+  th {
+    text-align: left;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td { padding: 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+
+  .row-actions { display: flex; gap: 8px; }
+
+  .icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-btn:hover { border-color: var(--purple); color: var(--purple-light); }
+  .icon-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+  .empty-state { text-align: center; padding: 32px; color: var(--text-muted); font-size: 14px; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(130,87,229,0.15);
+    color: var(--purple-light);
+    font-weight: 600;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .banner {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .banner.show { display: block; }
+  .banner.error { background: rgba(255,92,92,0.12); color: var(--red); border: 1px solid rgba(255,92,92,0.3); }
+  .banner.success { background: rgba(46,204,113,0.12); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+
+  .picker-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+  .picker-row select { flex: 1; }
+
+  @media (max-width: 720px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; }
+    .api-status { display: none; }
+    main { padding: 24px; }
+    form.inline-form, form.inline-form.products { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand"><span class="dot"></span> Products API</div>
+
+    <nav>
+      <button class="nav-item active" data-view="clients">Clientes</button>
+      <button class="nav-item" data-view="products">Produtos</button>
+    </nav>
+
+    <div class="api-status">
+      <span class="status-pill" id="statusPill"></span>
+      <span id="statusText">verificando API…</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- ===== VIEW: CLIENTES ===== -->
+    <section class="view active" id="view-clients">
+      <header class="page-head">
+        <h1>Clientes</h1>
+        <p>Cadastro e gerenciamento de clientes.</p>
+      </header>
+
+      <div class="banner" id="clientsBanner"></div>
+
+      <div class="panel">
+        <h2 id="clientFormTitle">Novo cliente</h2>
+        <form class="inline-form" id="formClient">
+          <input type="text" id="clientName" placeholder="Nome" required>
+          <input type="email" id="clientEmail" placeholder="Email" required>
+          <button type="submit" class="primary" id="clientSubmitBtn">Adicionar</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Lista de clientes</h2>
+        <table>
+          <thead><tr><th>Nome</th><th></th></tr></thead>
+          <tbody id="clientsTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="clientsEmpty" style="display:none;">Nenhum cliente cadastrado ainda.</div>
+        <p class="note">A listagem geral da API não retorna o email — só nome e id (ResponseShortClientJson). Para editar, os dados completos são buscados no momento do clique.</p>
+      </div>
+    </section>
+
+    <!-- ===== VIEW: PRODUTOS ===== -->
+    <section class="view" id="view-products">
+      <header class="page-head">
+        <h1>Produtos</h1>
+        <p>Produtos são vinculados a um cliente — selecione um para gerenciar.</p>
+      </header>
+
+      <div class="banner" id="productsBanner"></div>
+
+      <div class="panel">
+        <h2>Cliente</h2>
+        <div class="picker-row">
+          <select id="clientPicker">
+            <option value="">Selecione um cliente…</option>
+          </select>
+        </div>
+        <p class="note" id="selectedClientEmail"></p>
+      </div>
+
+      <div class="panel">
+        <h2>Novo produto</h2>
+        <form class="inline-form products" id="formProduct">
+          <input type="text" id="productName" placeholder="Nome do produto" required>
+          <input type="text" id="productBrand" placeholder="Marca" required>
+          <input type="number" step="0.01" min="0.01" id="productPrice" placeholder="Preço" required>
+          <button type="submit" class="primary" id="productSubmitBtn" disabled>Adicionar</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Produtos do cliente</h2>
+        <table>
+          <thead><tr><th>Nome</th><th></th></tr></thead>
+          <tbody id="productsTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="productsEmpty">Selecione um cliente para ver os produtos.</div>
+        <p class="note">A API atual não devolve marca/preço na listagem (ResponseShortProductJson só tem id e nome) — esses dados ficam salvos no banco, mas não voltam na resposta.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:5044/api';
+    // Se preferir HTTPS, troque para 'https://localhost:7236/api' — mas nesse caso
+    // o navegador vai bloquear a chamada até você confiar no certificado local com:
+    // dotnet dev-certs https --trust
+
+    let clientsCache = [];
+    let selectedClientId = null;
+    let editingClientId = null;
+
+    // ---------- Navegação ----------
+    const navItems = document.querySelectorAll('.nav-item');
+    const views = document.querySelectorAll('.view');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        views.forEach(v => v.classList.remove('active'));
+        item.classList.add('active');
+        document.getElementById('view-' + item.dataset.view).classList.add('active');
+      });
+    });
+
+    // ---------- Helpers ----------
+    function showBanner(id, message, type) {
+      const el = document.getElementById(id);
+      el.textContent = message;
+      el.className = 'banner show ' + type;
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    async function parseErrors(res) {
+      try {
+        const data = await res.json();
+        if (data && data.errors) return data.errors.join(', ');
+        if (data && data.Errors) return data.Errors.join(', ');
+      } catch (e) {}
+      return 'Erro inesperado (status ' + res.status + ')';
+    }
+
+    // ---------- Status da API ----------
+    async function checkApiStatus() {
+      const pill = document.getElementById('statusPill');
+      const text = document.getElementById('statusText');
+      try {
+        const res = await fetch(API_BASE + '/clients', { method: 'GET' });
+        if (res.ok || res.status === 204) {
+          pill.classList.remove('offline');
+          text.textContent = 'API online';
+        } else {
+          throw new Error('status ' + res.status);
+        }
+      } catch (e) {
+        pill.classList.add('offline');
+        text.textContent = 'API offline';
+      }
+    }
+
+    // ---------- Clientes ----------
+    async function loadClients() {
+      const res = await fetch(API_BASE + '/clients');
+      if (res.status === 204) { clientsCache = []; return []; }
+      if (!res.ok) throw new Error('Falha ao carregar clientes');
+      const data = await res.json();
+      clientsCache = data.clients || data.Clients || [];
+      return clientsCache;
+    }
+
+    function renderClientsTable() {
+      const body = document.getElementById('clientsTableBody');
+      const empty = document.getElementById('clientsEmpty');
+      body.innerHTML = '';
+
+      if (clientsCache.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      clientsCache.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + escapeHtml(c.name || c.Name) + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="icon-btn" title="Editar" data-action="edit" data-id="' + (c.id || c.Id) + '">✎</button>' +
+            '<button class="icon-btn danger" title="Remover" data-action="delete" data-id="' + (c.id || c.Id) + '">✕</button>' +
+          '</td>';
+        body.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str ?? '';
+      return div.innerHTML;
+    }
+
+    document.getElementById('clientsTableBody').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const id = btn.dataset.id;
+
+      if (btn.dataset.action === 'delete') {
+        if (!confirm('Remover este cliente?')) return;
+        const res = await fetch(API_BASE + '/clients/' + id, { method: 'DELETE' });
+        if (res.ok || res.status === 204) {
+          showBanner('clientsBanner', 'Cliente removido.', 'success');
+          await refreshClients();
+        } else {
+          showBanner('clientsBanner', await parseErrors(res), 'error');
+        }
+      }
+
+      if (btn.dataset.action === 'edit') {
+        const res = await fetch(API_BASE + '/clients/' + id);
+        if (!res.ok) { showBanner('clientsBanner', await parseErrors(res), 'error'); return; }
+        const data = await res.json();
+        document.getElementById('clientName').value = data.name || data.Name;
+        document.getElementById('clientEmail').value = data.email || data.Email;
+        editingClientId = id;
+        document.getElementById('clientFormTitle').textContent = 'Editando cliente';
+        document.getElementById('clientSubmitBtn').textContent = 'Salvar alterações';
+        document.getElementById('clientName').focus();
+      }
+    });
+
+    document.getElementById('formClient').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        Name: document.getElementById('clientName').value,
+        Email: document.getElementById('clientEmail').value
+      };
+
+      let res;
+      if (editingClientId) {
+        res = await fetch(API_BASE + '/clients/' + editingClientId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        res = await fetch(API_BASE + '/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (res.ok || res.status === 201 || res.status === 204) {
+        showBanner('clientsBanner', editingClientId ? 'Cliente atualizado.' : 'Cliente criado.', 'success');
+        resetClientForm();
+        await refreshClients();
+      } else {
+        showBanner('clientsBanner', await parseErrors(res), 'error');
+      }
+    });
+
+    function resetClientForm() {
+      document.getElementById('formClient').reset();
+      editingClientId = null;
+      document.getElementById('clientFormTitle').textContent = 'Novo cliente';
+      document.getElementById('clientSubmitBtn').textContent = 'Adicionar';
+    }
+
+    async function refreshClients() {
+      await loadClients();
+      renderClientsTable();
+      populateClientPicker();
+    }
+
+    // ---------- Produtos ----------
+    function populateClientPicker() {
+      const picker = document.getElementById('clientPicker');
+      const current = picker.value;
+      picker.innerHTML = '<option value="">Selecione um cliente…</option>';
+      clientsCache.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id || c.Id;
+        opt.textContent = c.name || c.Name;
+        picker.appendChild(opt);
+      });
+      if (current) picker.value = current;
+    }
+
+    document.getElementById('clientPicker').addEventListener('change', async (e) => {
+      selectedClientId = e.target.value || null;
+      document.getElementById('productSubmitBtn').disabled = !selectedClientId;
+      if (selectedClientId) {
+        await loadClientProducts(selectedClientId);
+      } else {
+        document.getElementById('productsTableBody').innerHTML = '';
+        document.getElementById('productsEmpty').style.display = 'block';
+        document.getElementById('productsEmpty').textContent = 'Selecione um cliente para ver os produtos.';
+        document.getElementById('selectedClientEmail').textContent = '';
+      }
+    });
+
+    async function loadClientProducts(clientId) {
+      const res = await fetch(API_BASE + '/clients/' + clientId);
+      if (!res.ok) { showBanner('productsBanner', await parseErrors(res), 'error'); return; }
+      const data = await res.json();
+      document.getElementById('selectedClientEmail').textContent = 'Email: ' + (data.email || data.Email);
+      renderProductsTable(data.products || data.Products || []);
+    }
+
+    function renderProductsTable(products) {
+      const body = document.getElementById('productsTableBody');
+      const empty = document.getElementById('productsEmpty');
+      body.innerHTML = '';
+
+      if (products.length === 0) {
+        empty.style.display = 'block';
+        empty.textContent = 'Este cliente ainda não tem produtos.';
+        return;
+      }
+      empty.style.display = 'none';
+
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + escapeHtml(p.name || p.Name) + '</td>' +
+          '<td class="row-actions">' +
+            '<button class="icon-btn danger" title="Remover" data-id="' + (p.id || p.Id) + '">✕</button>' +
+          '</td>';
+        body.appendChild(tr);
+      });
+    }
+
+    document.getElementById('productsTableBody').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      if (!confirm('Remover este produto?')) return;
+
+      const res = await fetch(API_BASE + '/products/' + btn.dataset.id, { method: 'DELETE' });
+      if (res.ok || res.status === 204) {
+        showBanner('productsBanner', 'Produto removido.', 'success');
+        await loadClientProducts(selectedClientId);
+      } else {
+        showBanner('productsBanner', await parseErrors(res), 'error');
+      }
+    });
+
+    document.getElementById('formProduct').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedClientId) return;
+
+      const payload = {
+        Name: document.getElementById('productName').value,
+        Brand: document.getElementById('productBrand').value,
+        Price: parseFloat(document.getElementById('productPrice').value)
+      };
+
+      const res = await fetch(API_BASE + '/products/' + selectedClientId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok || res.status === 201) {
+        showBanner('productsBanner', 'Produto adicionado.', 'success');
+        document.getElementById('formProduct').reset();
+        await loadClientProducts(selectedClientId);
+      } else {
+        showBanner('productsBanner', await parseErrors(res), 'error');
+      }
+    });
+
+    // ---------- Inicialização ----------
+    (async function init() {
+      await checkApiStatus();
+      await refreshClients();
+    })();
+  </script>
+
+</body>
+</html>
