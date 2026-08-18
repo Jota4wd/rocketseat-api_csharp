@@ -1,14 +1,14 @@
 using Products.API.Communication.Requests;
 using Products.API.Communication.Responses;
-using Products.API.Entities;
 using Products.API.Infrastructure;
 using Products.Exceptions.ExceptionsBase;
+using Products.API.Entities;
 
-namespace Products.API.UseCases.Clients.Register;
+namespace Products.API.UseCases.Clients.ShareValidator;
 
 public class RegisterClientUseCase
 {
-	public ResponseClientJson Execute(RequestClientJson request)
+	public ResponseShortClientJson Execute(RequestClientJson request)
 	{
 		Validate(request);
 
@@ -23,7 +23,7 @@ public class RegisterClientUseCase
 		dbContext.Clients.Add(entity);
 		dbContext.SaveChanges();
 
-		return new ResponseClientJson
+		return new ResponseShortClientJson
 		{
 			Id = entity.Id,
 			Name = entity.Name
@@ -32,7 +32,7 @@ public class RegisterClientUseCase
 
 	private void Validate(RequestClientJson request)
 	{
-		var validator = new RegisterClientValidator();
+		var validator = new RequestClientValidator();
 		var result = validator.Validate(request);
 
 		if (!result.IsValid)
@@ -43,4 +43,3 @@ public class RegisterClientUseCase
 		}
 	}
 }
-
