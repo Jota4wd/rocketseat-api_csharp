@@ -6,33 +6,31 @@ Gerencia **Clientes** e **Produtos**, com relação **1 para muitos** (um client
 
 ## 🚀 Tecnologias
 
-- .NET 8
-- ASP.NET Core
-- C#
+- .NET 8 / ASP.NET Core
+- Entity Framework Core + SQLite
+- HTML/CSS/JS puro (front-end de teste)
 
-## ▶️ Como executar
+## 📋 Funcionalidades
 
-Pré-requisito: [.NET 8 SDK](https://dotnet.microsoft.com/download) instalado.
+- Cadastrar, listar, editar e remover clientes
+- Cadastrar e remover produtos vinculados a um cliente
+
+## ▶️ Como rodar
 
 ```bash
-# Restaurar dependências
 dotnet restore
-
-# Rodar o projeto (a partir da pasta Products.API)
-cd Products.API
-dotnet run
+dotnet run --project Products.API
 ```
 
-A API sobe por padrão em `https://localhost:{porta}` (a porta exata aparece no terminal ao rodar).
+A API sobe em `http://localhost:5044`.
 
-## 🧪 Testando a API
+## 🧪 Como testar
 
-Recomenda-se usar o [Swagger](https://swagger.io/) (já configurado por padrão em projetos ASP.NET Core) acessando `/swagger` no navegador, ou ferramentas como Insomnia/Postman.
+**Opção 1 — Swagger** (rota `/swagger`, abra http://localhost:5044/swagger/index.html)
+Bom pra testar endpoint por endpoint direto, sem interface visual.
 
-## 🔗 Relação entre entidades
-
-- **Cliente** → possui vários **Produtos** (1:N)
-- **Produto** → pertence a um único **Cliente**
+**Opção 2 — Front-end (`index.html`)**
+Abra o arquivo `index.html`, na raiz do projeto, direto no navegador (duplo clique, não precisa de servidor). Com a API rodando, dá pra cadastrar clientes e produtos, ver a lista e testar tudo visualmente.
 
 ## 📚 Sobre
 

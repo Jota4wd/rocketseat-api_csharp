@@ -15,6 +15,18 @@ builder.Services.AddMvc(option => option.Filters.Add(typeof(ExceptionFilter)));
 // Configuração do DbContext com o SQLite
 builder.Services.AddDbContext<ProductDbContext>();
 
+// CORS: libera o front-end (index.html local) para consumir a API.
+const string CorsPolicyName = "AllowFrontend";
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy(CorsPolicyName, policy =>
+	{
+		policy.AllowAnyOrigin()
+			  .AllowAnyMethod()
+			  .AllowAnyHeader();
+	});
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,7 +36,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors(CorsPolicyName);
 
 app.MapControllers();
 
